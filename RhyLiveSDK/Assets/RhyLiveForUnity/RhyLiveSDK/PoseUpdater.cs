@@ -10,10 +10,12 @@ public class PoseUpdater : MonoBehaviour
 {
     [SerializeField]
     private int smoothness = 3;
-    
-    // 前面全是骨骼的四元数，最后一个是local transform, y轴下调1m
-    public static readonly int FloatDataCount = (int) HumanBodyBones.LastBone * 4 + 3;
 
+    // posedata要传输的float数：每个骨骼的四元数+hips的position
+    // posedata float number：localQuaternion for each bone +hips localPosition
+    public static readonly int FloatDataCount = (int) HumanBodyBones.LastBone * 4 + 3;
+    //posedata 每帧更新
+    //posedata, updated per frame
     private float[] poseData = new float[FloatDataCount];
     private readonly Quaternion[] velocityQuaternionsPose = new Quaternion[(int)HumanBodyBones.LastBone];
 
@@ -55,8 +57,9 @@ public class PoseUpdater : MonoBehaviour
         deriv.w -= derivError.w;
         return new Quaternion(result.x, result.y, result.z, result.w);
     }
-
-    public void UpdateFromFloats(byte[] data, int startIdx, int len)
+    //通过float直接更新posedata（字节格式）
+    //Update posedata through float (use byte[])
+        public void UpdateFromFloats(byte[] data, int startIdx, int len)
     {
         int count = len / sizeof(float);
         if (count > FloatDataCount) {
@@ -65,8 +68,9 @@ public class PoseUpdater : MonoBehaviour
         
         Buffer.BlockCopy(data, startIdx, this.poseData, 0, count * sizeof(float));
     }
-
-    public void UpdateFromFloats(List<float> data)
+        //通过float直接更新posedata（List<float>格式）
+        //Update posedata through float (use List<float>)
+        public void UpdateFromFloats(List<float> data)
     {
         int count = data.Count;
         if (count > FloatDataCount) {
@@ -77,8 +81,9 @@ public class PoseUpdater : MonoBehaviour
             this.poseData[i] = data[i];
         }
     }
-
-    public void UpdateFromFloats(List<OSCValue> data) {
+        //通过float直接更新posedata（List<OSCValue>格式）
+        //Update posedata through float (use List<OSCValue>)
+        public void UpdateFromFloats(List<OSCValue> data) {
         int count = data.Count;
         if (count > FloatDataCount) {
             count = FloatDataCount;
@@ -88,11 +93,13 @@ public class PoseUpdater : MonoBehaviour
             this.poseData[i] = data[i].FloatValue;
         }
     }
-
+    //获取posedata
+    //get posedata
     public float[] GetPoseData() {
         return this.poseData;
     }
-
+    //获取目标骨骼的旋转
+    //get target bone transform
     public Quaternion GetBoneQuaternion(HumanBodyBones index) {
         if (index == HumanBodyBones.LastBone) {
             return Quaternion.identity;
@@ -108,16 +115,18 @@ public class PoseUpdater : MonoBehaviour
 
         return quaternionData;
     }
-   
-    public Vector3 GetRootPosition() {
+        //获取根节点的位移
+        //get hips bone transform
+        public Vector3 GetRootPosition() {
         return new Vector3(
             this.poseData[(int) HumanBodyBones.LastBone * 4 + 0],
             this.poseData[(int) HumanBodyBones.LastBone * 4 + 1],
             this.poseData[(int) HumanBodyBones.LastBone * 4 + 2]
         );
     }
-
-    public void SmoothApplyToHumanoidAnimator(Animator targetAnimator)
+        //将posedata的值赋给要驱动的模型的animator
+        //Apply posedata value to target model's animator
+        public void SmoothApplyToHumanoidAnimator(Animator targetAnimator)
     {
         for (int i = 0; i < (int) HumanBodyBones.LastBone; i++) {
             Quaternion velocityQuaternionPose = this.velocityQuaternionsPose[i];

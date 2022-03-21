@@ -8,7 +8,8 @@ using extOSC;
 using iMobileDevice;
 
 namespace RhythMo.RhyLiveSDK {
-
+//This Script Receives MotionData and awakes Updaters
+//此脚本负责接收动作数据并唤醒Updater脚本
 public class HumanUpdaterDaemon : MonoBehaviour
 {
     [SerializeField]
@@ -40,7 +41,8 @@ public class HumanUpdaterDaemon : MonoBehaviour
     private void Awake() {
         StopHumanUpdater();
 
-        // NativeLibraries.Load(); // init iDeviceMobile
+        // init iDeviceMobile
+        //初始化苹果usb接收服务
         oscUpdater = gameObject.AddComponent<OscHumanUpdater>();
         oscUpdater.faceUpdater = this.faceUpdater;
         oscUpdater.poseUpdater = this.poseUpdater;
@@ -49,12 +51,16 @@ public class HumanUpdaterDaemon : MonoBehaviour
         rawUpdater.poseUpdater = this.poseUpdater;
         rawUpdater.faceUpdater = this.faceUpdater;
     }
-    
+    //Start data receiving
+    //开始动作数据接收
     private void Start() {
+        //Using osc receive
+        //无线采用osc接收
         if (autoStartOsc) {
             StartUdp_Osc(autoStartOscPort);
         }
-
+        //Using usb receive (ios only)
+        //有线采用usb接收（目前只支持ios）
         if (autoStartUsb) {
             StartUsb_iOS(autoStartUsbPort);
         }
@@ -74,7 +80,7 @@ public class HumanUpdaterDaemon : MonoBehaviour
     public void StartUdp_Osc(ushort port) {
         StartHumanUpdater();
 
-        udpOscReceiver = gameObject.GetComponent<OSCReceiver>(); // require update
+        udpOscReceiver = gameObject.GetComponent<OSCReceiver>(); 
         if (udpOscReceiver == null) {
             udpOscReceiver = gameObject.AddComponent<OSCReceiver>();
         }
@@ -99,12 +105,12 @@ public class HumanUpdaterDaemon : MonoBehaviour
     public void StartUsb_iOS(ushort port) {
         StartHumanUpdater();
 
-        // NativeLibraries.Load();
+        
         var usbmuxd = LibiMobileDevice.Instance.Usbmuxd;
         var idevice = LibiMobileDevice.Instance.iDevice;
         var appleDeviceService = UsbiOSReceiver.DetectAndStartAppleDeviceService();
-
-        var iOSReceiver = new UsbiOSReceiver(); // require update
+        // require update
+        var iOSReceiver = new UsbiOSReceiver(); 
         iOSReceiver.RawUpdater = rawUpdater.UpdateData;
         iOSReceiver.RemotePort = port;
 
