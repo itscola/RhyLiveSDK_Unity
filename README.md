@@ -14,6 +14,8 @@ Apply received Rotation data to unity HumanBodyBones, apply received Position da
 
 **PS: For details, please see comments in code.**
 
+**SDK use Unity 2020.3.18**
+
 ***
 # RhyLiveSDK_Unity
 此SDK为unity开发者制作，包含RhyLive驱动虚拟形象一切基础代码，包括：动作数据的接收，平滑等。
@@ -30,3 +32,5 @@ Apply received Rotation data to unity HumanBodyBones, apply received Position da
 
 
 **PS: 代码细节描述请看注释.**
+
+**SDK使用Unity 2020.3.18制作**
